@@ -36,20 +36,12 @@ resource "aws_s3_bucket" "load_balancer_logs" {
   bucket = "votingapp-load_balancer-logs-tf-${random_id.bucket_id.hex}"
 }
 
-# Create target group
-resource "aws_lb_target_group" "votingApp_tg" {
-  name     = "votingApp_tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = module.vpc.aws_vpc.votingApp_vpc.id
-}
-
 resource "aws_lb" "votingApp_lb" {
   name               = "votingApp-lb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.load_balancer_sg.id]
-  subnets            = module.vpc.aws_subnet.public_subnet
+  subnets            = module.vpc.public_subnets
 
   enable_deletion_protection = true
 
@@ -64,10 +56,20 @@ resource "aws_lb" "votingApp_lb" {
   }
 }
 
+# Create target group
+resource "aws_lb_target_group" "votingApp_tg" {
+  name     = "votingApp_tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = module.vpc.aws_vpc.votingApp_vpc.id
+}
+
 resource "aws_lb_listener" "app_server_listener" {
   load_balancer_arn = aws_lb.app_server_listener.arn
   port              = "443"
   protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = "arn:aws:iam::187416307283:server-certificate/test_cert_rab3wuqwgja25ct3n4jdj2tzu4"
   
   default_action {
     type             = "forward"
