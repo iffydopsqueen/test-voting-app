@@ -23,3 +23,4 @@ output "votingApp_nat_gw" {
   value = aws_nat_gateway.votingApp_nat_gw.id
 }
 
+

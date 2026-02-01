@@ -28,17 +28,8 @@ variable "db_name" {
   type = string
   default = "mydb"
 }
-variable "db_username" {
-  description = "The master username for the database"
-  type = string
-  default = "foo"
-}
-variable "db_password" {
-  description = "The master password for the database"
-  type = string
-  default = "foobarbaz"
-}
-variable "db_parameter_group_name" {
+
+variable "db_parameter_group_name" { 
   description = "The parameter group name for the RDS instance"
   type = string
   default = "default.mysql8.0"
@@ -49,3 +40,29 @@ variable "availability_zone" {
   type = list(string)
   default = ["us-east-1a", "us-east-1b"]
 }
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "db_secrets_arn" {
+  type = string
+}
+
+variable "logic_server_sg_id" {
+  type = string
+}
+
+
+variable "private_subnet" {
+  type = string
+}
+
+variable "db_username" {
+  type = string
+}
+
+variable "db_password" {
+  type = string
+}
+

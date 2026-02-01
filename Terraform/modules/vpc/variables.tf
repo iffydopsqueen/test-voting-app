@@ -34,11 +34,7 @@ variable "instance_type" {
   default = "t2.micro"
 }
 
-variable "key_name" {
-  description = "The name of the key pair to use for EC2 instances"
-  type = string
-  default = "WinAccessKey"
-}
+
 
 variable "ami_id" {
   description = "The ami id used for the ec2"
