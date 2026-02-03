@@ -1,39 +1,6 @@
-# Security Group for Application load balancer
-resource "aws_security_group" "load_balancer_sg" {
-  name        = "${var.project}_load_balancer_sg"
-  description = "Security group for application load balancer"
-  vpc_id      = var.vpc_id
-
-    ingress {
-        from_port   = 80
-        to_port     = 80
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
-        from_port   = 443
-        to_port     = 443
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    egress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-        ipv6_cidr_blocks = ["::/0"]
-    }
-    tags = {
-        Name = "${var.project}_load_balancer_sg"
-    }
-}
-
-
 # Create S3 bucket for load balancer access logs
 resource "aws_s3_bucket" "load_balancer_logs" {
-  bucket = "votingapp-load-balancer-logs-tf-thecloudchief-123456789"
+  bucket = "votingapp-load-balancer-logs-tf-thecloudchief"
 }
 
 resource "aws_s3_bucket_policy" "allow_elb_logging" {
@@ -78,9 +45,8 @@ resource "aws_lb" "votingApp_lb" {
   name               = "votingApp-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.load_balancer_sg.id]
-  subnets            = var.public_subnets
-  enable_deletion_protection = true
+  security_groups    = [var.load_balancer_sg_id]
+  subnets            = [var.private_subnet_1, var.private_subnet_2]
 
   access_logs {
     bucket  = aws_s3_bucket.load_balancer_logs.bucket
@@ -90,19 +56,33 @@ resource "aws_lb" "votingApp_lb" {
 }
 
 # Create target group
+# Since i am not terminating SSL at the load balancer, I need to ensure my ec2 should have SSL cert installed (Tomcat with https)
+# If ec2 isnt listening on 443, health check will fail
 resource "aws_lb_target_group" "votingApp_tg" {
   name     = "votingApp-tg"
-  port     = 80
-  protocol = "HTTP"
+  port     = 443
+  protocol = "HTTPS"
   vpc_id   = var.vpc_id
+
+  health_check {
+    path                = "/"
+    protocol            = "HTTPS"
+    matcher             = "200-399"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name = "votingApp_target_group"
+  }
 }
 
 resource "aws_lb_listener" "app_server_listener" {
   load_balancer_arn = aws_lb.votingApp_lb.arn
   port              = "443"
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = null
   
   default_action {
     type             = "forward"

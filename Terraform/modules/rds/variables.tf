@@ -6,7 +6,7 @@ variable "project" {
 variable "db_instance_class" {
   description = "The instance type of the RDS instance"
   type = string
-  default = "db.t2.micro"
+  default = "db.t3.micro"
 }
 variable "db_allocated_storage" {
   description = "The allocated storage in GBs for the RDS instance"
@@ -21,7 +21,7 @@ variable "db_engine" {
 variable "db_engine_version" {
   description = "The database engine version for the RDS instance"
   type = string
-  default = "8.0"
+  default = "8.0.44"
 }
 variable "db_name" {
   description = "The name of the database to create"
@@ -41,21 +41,9 @@ variable "availability_zone" {
   default = ["us-east-1a", "us-east-1b"]
 }
 
-variable "vpc_id" {
-  type = string
-}
 
-variable "db_secrets_arn" {
-  type = string
-}
-
-variable "logic_server_sg_id" {
-  type = string
-}
-
-
-variable "private_subnet" {
-  type = string
+variable "private_subnets" {
+  type = list(string)
 }
 
 variable "db_username" {
@@ -66,3 +54,14 @@ variable "db_password" {
   type = string
 }
 
+variable "db_server_sg_id" {
+  type = string
+}
+
+variable "private_subnet_1" {
+  type = string
+}
+
+variable "private_subnet_2" {
+  type = string
+}

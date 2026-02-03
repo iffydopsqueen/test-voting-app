@@ -1,8 +1,15 @@
+resource "random_password" "password" {
+  length           = 20
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+  min_upper        = 2
+}
+
 resource "aws_secretsmanager_secret" "db_secrets" {
-  name = "db_secretss"
+  name = "db_secrets_new"
 
     tags = {
-        Name = "db_secretss"
+        Name = "db_secrets"
     }
 }
 
@@ -11,6 +18,7 @@ resource "aws_secretsmanager_secret_version" "db_secrets_value" {
   secret_id     = aws_secretsmanager_secret.db_secrets.id
   secret_string = jsonencode({
     username = var.db_username
-    password = var.db_password
+    password = random_password.password.result
     })
 }
+

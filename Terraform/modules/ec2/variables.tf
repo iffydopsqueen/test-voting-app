@@ -16,26 +16,24 @@ variable "instance_type" {
   default     = "t2.micro"
 }
 
-variable "vpc_id" {
-  type = string
-}
 
 variable "load_balancer_sg_id" {
   type = string
 }
 
-variable "public_subnets" {
-  type = list(string)
-}
 
 variable "aws_lb_target_group_arn" {
   type = string
 }
 
-variable "private_subnet" {
+variable "public_subnet" {
   type = string
 }
 
 variable "db_secrets_arn" {
+  type = string
+}
+
+variable "app_server_sg_id" {
   type = string
 }

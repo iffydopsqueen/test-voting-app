@@ -1,111 +1,3 @@
-# Security Group for Application servers
-resource "aws_security_group" "app_server_sg" {
-  name        = "${var.project}_app_server_sg"
-  description = "Security group for application servers"
-  vpc_id      = var.vpc_id
-  ingress {
-    description     = "Allow HTTP from Load Balancer"
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [var.load_balancer_sg_id]
-  }
-
-  ingress {
-    description     = "Allow HTTPS from Load Balancer"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [var.load_balancer_sg_id]
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-  tags = {
-    Name = "${var.project}_app_server_sg"
-  }
-}
-
-# Security Group for Logic server
-resource "aws_security_group" "logic_server_sg" {
-  name        = "${var.project}_logic_server_sg"
-  description = "Security group for logic server"
-  vpc_id      = var.vpc_id
-  ingress {
-    description     = "Allow HTTP from Application servers"
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.app_server_sg.id]
-  }
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-  tags = {
-    Name = "${var.project}_logic_server_sg"
-  }
-}
-
-
-resource "aws_launch_template" "votingApp_launch_template" {
-  name_prefix   = "votingApp-"
-  image_id      = var.ami_id
-  instance_type = var.instance_type
-
-  network_interfaces {
-    associate_public_ip_address = true
-    security_groups             = [aws_security_group.app_server_sg.id]
-  }
-
-  tag_specifications {
-    resource_type = "instance"
-    tags = {
-      name = "asg_instance_template"
-    }
-  }
-}
-
-# Define placement group for the instances
-resource "aws_placement_group" "instance_placement_group" {
-  name     = "instance_placement_group"
-  strategy = "spread"
-}
-
-
-resource "aws_autoscaling_group" "votingApp_asg" {
-  name                      = "votingApp_asg"
-  max_size                  = 2
-  min_size                  = 1
-  health_check_grace_period = 300
-  health_check_type         = "ELB"
-  desired_capacity          = 2
-  force_delete              = true
-  placement_group           = aws_placement_group.instance_placement_group.id
-  vpc_zone_identifier       = [var.public_subnets[0], var.public_subnets[1]]
-
-  launch_template {
-    id      = aws_launch_template.votingApp_launch_template.id
-    version = "$Latest"
-  }
-
-  target_group_arns = [var.aws_lb_target_group_arn]
-
-  tag {
-    key                 = "Name"
-    value               = "voting_asg_instance"
-    propagate_at_launch = true
-  }
-}
-
 resource "aws_iam_role" "ec2_role" {
   name = "ec2_db_role"
 
@@ -147,18 +39,55 @@ resource "aws_iam_instance_profile" "ec2_instance_profile" {
   role = aws_iam_role.ec2_role.name
 }
 
-resource "aws_instance" "logic_server_instance" {
-  ami                    = var.ami_id
-  instance_type          = var.instance_type
-  subnet_id              = var.private_subnet
-  vpc_security_group_ids = [aws_security_group.logic_server_sg.id]
-  iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
 
-  tags = {
-    Name = "${var.project}_logic_server_instance"
+resource "aws_launch_template" "votingApp_launch_template" {
+  name_prefix   = "votingApp-"
+  image_id      = var.ami_id
+  instance_type = var.instance_type
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2_instance_profile.name
+  }
+  
+
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [var.app_server_sg_id]
   }
 
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      name = "asg_instance_template"
+    }
+  }
 }
+
+
+resource "aws_autoscaling_group" "votingApp_asg" {
+  name                      = "votingApp_asg"
+  max_size                  = 2
+  min_size                  = 1
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+  desired_capacity          = 2
+  force_delete              = true
+  vpc_zone_identifier       = [var.public_subnet]
+
+  launch_template {
+    id      = aws_launch_template.votingApp_launch_template.id
+    version = "$Latest"
+  }
+
+  target_group_arns = [var.aws_lb_target_group_arn]
+  
+
+  tag {
+    key                 = "Name"
+    value               = "voting_asg_instance"
+    propagate_at_launch = true
+  }
+}
+
 
 
 

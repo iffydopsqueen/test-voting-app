@@ -1,3 +1,9 @@
+variable "project" {
+  description = "The project name"
+  type = string
+  default = "votingApp"
+}
+
 variable "aws_region" {
   description = "The aws region to be deployed to"
   type = string
@@ -16,25 +22,22 @@ variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
 
-variable "public_subnet_cidrs" {
-  description = "List of public subnet CIDR blocks"
+variable "private_subnet_cidrs" {
+  description = "List of private subnet CIDR blocks"
   type = list(string)
   default = ["10.0.1.0/24", "10.0.2.0/24"]
 }
 
-variable "private_subnet_cidrs" {
-  description = "List of private subnet CIDR blocks"
+variable "public_subnet_cidrs" {
+  description = "public subnet CIDR blocks"
   type = string
   default = "10.0.3.0/24"
 }
-
 variable "instance_type" {
   description = "EC2 instance type"
   type = string
   default = "t2.micro"
 }
-
-
 
 variable "ami_id" {
   description = "The ami id used for the ec2"
@@ -42,11 +45,6 @@ variable "ami_id" {
     default = "ami-07ff62358b87c7116"
 }
 
-variable "project" {
-  description = "The project name"
-  type = string
-  default = "votingApp"
-}
 
 variable "allowed_ipv4_cidr" {
   description = "the ipv4 cidr allowed to ssh into ec2"
