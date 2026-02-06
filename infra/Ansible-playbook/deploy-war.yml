@@ -5,19 +5,13 @@
   vars:
     tomcat_version: 10.1.52
     tomcat_install_dir: /opt/tomcat
-    #war_file: 
+    tomcat_webapps: /opt/tomcat/apache-tomcat-{{ tomcat_version }}/webapps
 
   tasks:
-    - name: Ensure Tomcat is installed 
-      apt:
-        name: tomcat
-        state: present
-        update_cache: yes
-
     - name: Copy WAR file to Tomcat webapps
       copy:
         src: "{{ war_file }}"
-        dest: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/webapps/votingapp.war"
+        dest: "{{ tomcat_webapps }}/votingapp.war"
         owner: tomcat
         group: tomcat
         mode: '0644'
