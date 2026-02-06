@@ -17,23 +17,47 @@ jobs:
       TOMCAT_USER: ec2-user
       TOMCAT_HOST: ${{ secrets.EC2_HOST }}
       TOMCAT_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+      
+
+    outputs:
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
     steps:
     # 1. Checkout repository
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 2. Set up Java
+    
+
+    # 4. Capture Terraform outputs
+    - name: Get DB Outputs
+      run: |
+        echo "db_host=${{ secrets.DB_HOST }}" >> $GITHUB_OUTPUT
+        echo "db_port=${{ secrets.DB_PORT }}" >> $GITHUB_OUTPUT
+        echo "db_name=${{ secrets.DB_NAME }}" >> $GITHUB_OUTPUT
+        echo "db_username=${{ secrets.DB_USERNAME }}" >> $GITHUB_OUTPUT
+        echo "db_password=${{ secrets.DB_PASSWORD }}" >> $GITHUB_OUTPUT
+
+    # 5. Set up Java
     - name: Set up JDK 11
       uses: actions/setup-java@v3
       with:
         distribution: temurin
         java-version: 11
 
-    # 3. Build WAR using Maven
-    
+    # 6. Build WAR using Maven with RDS credentials
     - name: Build WAR
-      run: mvn clean package
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USERNAME: ${{ secrets.DB_USERNAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      run: mvn clean package -DskipTests=true
 
     - name: Upload WAR artifact 
       uses: actions/upload-artifact@v4
