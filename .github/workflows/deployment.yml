@@ -106,9 +106,19 @@ jobs:
     - name: Configure SSH Key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > /home/runner/.ssh/ubuntu-access-key.pem
-        chmod 600 /home/runner/.ssh/ubuntu-access-key.pem
-        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/known_hosts
+        # Use cat with heredoc to safely write SSH key
+        cat > ~/ubuntu-access-key.pem << 'SSHEOF'
+        ${{ secrets.EC2_SSH_KEY }}
+        SSHEOF
+        chmod 600 ~/ubuntu-access-key.pem
+        echo "SSH key created:"
+        ls -lh ~/ubuntu-access-key.pem
+        # Validate key format
+        echo "Key validation:"
+        head -1 ~/ubuntu-access-key.pem
+        tail -1 ~/ubuntu-access-key.pem
+        # Add host key to known_hosts
+        ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
     # 6. Run Ansible Playbook to deploy WAR
     - name: Deploy WAR to Tomcat
