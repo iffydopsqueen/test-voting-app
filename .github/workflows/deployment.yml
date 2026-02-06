@@ -120,9 +120,22 @@ jobs:
         # Add host key to known_hosts
         ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
+    - name: Verify WAR artifact exists
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "---"
+        echo "Artifacts directory contents:"
+        ls -lh artifacts/ || echo "artifacts/ NOT FOUND"
+        echo "---"
+        echo "Full workspace:"
+        ls -lh
+        echo "---"
+        test -f artifacts/votingapp.war && echo "✓ WAR file found at: $(pwd)/artifacts/votingapp.war" || echo "✗ WAR file NOT FOUND"
+
     # 6. Run Ansible Playbook to deploy WAR
     - name: Deploy WAR to Tomcat
       run: |
         ansible-playbook -i $INVENTORY_FILE $PLAYBOOK_FILE \
           --private-key=~/ubuntu-access-key.pem \
-          -e "war_file=$GITHUB_WORKSPACE/artifacts/votingapp.war"
+          -e "war_file=$(pwd)/artifacts/votingapp.war"
