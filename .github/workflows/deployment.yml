@@ -148,7 +148,7 @@ jobs:
       run: |
         echo "Current directory:"
         pwd
-        cd artifacts
+        cd ./artifacts
         echo "---"
         ls -lh
         echo "---"
@@ -159,4 +159,4 @@ jobs:
       run: |
         ansible-playbook -i $INVENTORY_FILE $PLAYBOOK_FILE \
           --private-key=~/ubuntu-access-key.pem \
-          -e "war_file=/home/runner/work/VotingApp/VotingApp/votingapp.war"
+          -e "war_file=/home/runner/work/VotingApp/VotingApp/artifacts/votingapp.war"
