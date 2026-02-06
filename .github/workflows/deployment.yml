@@ -59,6 +59,15 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: mvn clean package -DskipTests=true
 
+    - name: Verify WAR created
+      run: |
+        echo "Checking target directory:"
+        ls -lh target/ || echo "target/ NOT FOUND"
+        echo "---"
+        test -f target/*.war && echo "✓ WAR file found" || echo "✗ WAR file NOT found in target/"
+        echo "---"
+        find . -name "*.war" -type f 2>/dev/null || echo "No WAR files found anywhere"
+
     - name: Upload WAR artifact 
       uses: actions/upload-artifact@v4
       with:
