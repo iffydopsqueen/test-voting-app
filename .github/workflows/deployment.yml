@@ -80,7 +80,7 @@ jobs:
     - name: Checkout infra repo 
       uses: actions/checkout@v3 
       with: 
-        repository: Bobcharliee/VotingApp.git/infra
+        repository: Bobcharliee/VotingApp
         path: infra
 
     # 4. Install Ansible
