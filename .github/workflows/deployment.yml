@@ -86,6 +86,15 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Debug - List workspace files
+      run: |
+        ls -la
+        echo "---"
+        ls -la infra/ || echo "infra/ not found"
+        echo "---"
+        test -f inventory.ini && echo "inventory.ini found" || echo "inventory.ini NOT found"
+        test -f infra/Ansible-playbook/deploy-war.yml && echo "deploy-war.yml found" || echo "deploy-war.yml NOT found"
+
     # 4. Install Ansible
     - name: Install Ansible
       run: |
@@ -96,9 +105,14 @@ jobs:
     - name: Configure SSH Key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > /home/runner/.ssh/ubuntu-access-key.pem
-        chmod 600 /home/runner/.ssh/ubuntu-access-key.pem
-        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/known_hosts
+        # Use cat with heredoc to safely write SSH key without exposing it in logs
+        cat > ~/ubuntu-access-key.pem << 'SSHEOF'
+        ${{ secrets.EC2_SSH_KEY }}
+        SSHEOF
+        chmod 600 ~/ubuntu-access-key.pem
+        ls -lh ~/ubuntu-access-key.pem
+        # add host key if reachable; don't fail workflow if ssh-keyscan cannot reach host
+        ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
     # 6. Run Ansible Playbook to deploy WAR
     - name: Deploy WAR to Tomcat
