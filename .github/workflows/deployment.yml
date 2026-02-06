@@ -93,9 +93,11 @@ jobs:
     - name: Configure SSH Key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > /home/runner/.ssh/ubuntu-access-key.pem
-        chmod 600 /home/runner/.ssh/ubuntu-access-key.pem
-        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/known_hosts
+        # write private key reliably preserving newlines
+        printf '%s\n' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ubuntu-access-key.pem
+        chmod 600 ~/.ssh/ubuntu-access-key.pem
+        # add host key if reachable; don't fail workflow if ssh-keyscan cannot reach host
+        ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts || true
 
     # 6. Run Ansible Playbook to deploy WAR
     - name: Deploy WAR to Tomcat
