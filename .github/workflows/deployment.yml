@@ -19,13 +19,6 @@ jobs:
       TOMCAT_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
       
 
-    outputs:
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_PORT: ${{ secrets.DB_PORT }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USERNAME: ${{ secrets.DB_USERNAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-
     steps:
     # 1. Checkout repository
     - name: Checkout code
@@ -64,7 +57,7 @@ jobs:
         echo "Checking target directory:"
         ls -lh target/ || echo "target/ NOT FOUND"
         echo "---"
-        test -f target/*.war && echo "✓ WAR file found" || echo "✗ WAR file NOT found in target/"
+        test -f target/*.war && echo "WAR file found" || echo "WAR file NOT found in target/"
         echo "---"
         find . -name "*.war" -type f 2>/dev/null || echo "No WAR files found anywhere"
 
