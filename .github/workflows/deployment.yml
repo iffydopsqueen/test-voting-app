@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest 
     needs: build 
     env:
-      ANSIBLE_HOST_KEY_CHECKING: "False"
+      ANSIBLE_HOST_KEY_CHECKING: False
       INVENTORY_FILE: inventory.ini
       PLAYBOOK_FILE: infra/Ansible-playbook/deploy-war.yml
       TOMCAT_USER: ec2-user
