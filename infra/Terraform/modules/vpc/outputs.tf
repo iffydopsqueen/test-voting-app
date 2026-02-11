@@ -8,7 +8,7 @@ output "private_subnets" {
 }
 
 output "public_subnet" {
-  value = aws_subnet.public_subnet.id
+  value = [for subnet in aws_subnet.public_subnet : subnet.id]
 }
 
 output "votingApp_igw" {
@@ -29,4 +29,12 @@ output "private_subnet_1" {
 
 output "private_subnet_2" {
   value = aws_subnet.private_subnets[1].id
+}
+
+output "public_subnet_1" {
+  value = aws_subnet.public_subnet[0].id
+}
+
+output "public_subnet_2" {
+  value = aws_subnet.public_subnet[1].id
 }

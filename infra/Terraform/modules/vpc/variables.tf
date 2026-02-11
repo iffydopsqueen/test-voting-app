@@ -30,8 +30,8 @@ variable "private_subnet_cidrs" {
 
 variable "public_subnet_cidrs" {
   description = "public subnet CIDR blocks"
-  type = string
-  default = "10.0.3.0/24"
+  type = list(string)
+  default = ["10.0.3.0/24", "10.0.4.0/24"]
 }
 variable "instance_type" {
   description = "EC2 instance type"

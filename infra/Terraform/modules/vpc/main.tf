@@ -23,14 +23,15 @@ resource "aws_subnet" "private_subnets" {
 
 # Create 1 Public Subnet
 resource "aws_subnet" "public_subnet" {
+    count = length(var.availability_zone)
   vpc_id            = aws_vpc.votingApp_vpc.id
   region            = var.aws_region
-  availability_zone = "${var.availability_zone[0]}"
-  cidr_block        = var.public_subnet_cidrs
+  availability_zone = var.availability_zone[count.index]
+  cidr_block        = var.public_subnet_cidrs[count.index]
 
   map_public_ip_on_launch = true
     tags = {
-        Name = "${var.project}_public_subnet"
+        Name = "${var.project}_public_subnet_${var.availability_zone[count.index]}"
     }
 }
 
@@ -59,7 +60,8 @@ resource "aws_route_table" "public_rt" {
 
 # Associate Public Subnet with Public Route Table
 resource "aws_route_table_association" "public_rt_assoc" {
-    subnet_id      = aws_subnet.public_subnet.id
+    count = length(var.availability_zone)
+    subnet_id      = aws_subnet.public_subnet[count.index].id
     route_table_id = aws_route_table.public_rt.id
 }
 
@@ -76,7 +78,7 @@ resource "aws_eip" "nat_eip" {
 # Now create the NAT Gateway in our public subnet
 resource "aws_nat_gateway" "votingApp_nat_gw" {
     allocation_id = aws_eip.nat_eip.id
-    subnet_id     = aws_subnet.public_subnet.id
+    subnet_id     = aws_subnet.public_subnet[0].id
     tags = {
         Name = "${var.project}_NAT_GW"
     }

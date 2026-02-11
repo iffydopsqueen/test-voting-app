@@ -46,7 +46,7 @@ resource "aws_lb" "votingApp_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.load_balancer_sg_id]
-  subnets            = [var.private_subnet_1, var.private_subnet_2]
+  subnets            = [var.public_subnet_1, var.public_subnet_2]
 
   access_logs {
     bucket  = aws_s3_bucket.load_balancer_logs.bucket
@@ -60,14 +60,15 @@ resource "aws_lb" "votingApp_lb" {
 # If ec2 isnt listening on 443, health check will fail
 resource "aws_lb_target_group" "votingApp_tg" {
   name     = "votingApp-tg"
-  port     = 8080
+  port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
 
   health_check {
     path                = "/"
+    port = 80
     protocol            = "HTTP"
-    matcher             = "200-399"
+    matcher             = "200"
     interval            = 30
     timeout             = 5
     healthy_threshold   = 2
@@ -81,7 +82,7 @@ resource "aws_lb_target_group" "votingApp_tg" {
 
 resource "aws_lb_listener" "app_server_listener" {
   load_balancer_arn = aws_lb.votingApp_lb.arn
-  port              = "8080"
+  port              = "80"
   protocol          = "HTTP"
   
   default_action {

@@ -69,10 +69,10 @@ resource "aws_autoscaling_group" "votingApp_asg" {
   max_size                  = 2
   min_size                  = 1
   health_check_grace_period = 300
-  health_check_type         = "ELB"
+  health_check_type         = "EC2"
   desired_capacity          = 2
   force_delete              = true
-  vpc_zone_identifier       = [var.public_subnet]
+  vpc_zone_identifier       = [var.public_subnet_1, var.public_subnet_2]
   
 
   launch_template {

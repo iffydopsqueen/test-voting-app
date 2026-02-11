@@ -26,7 +26,11 @@ variable "aws_lb_target_group_arn" {
   type = string
 }
 
-variable "public_subnet" {
+variable "public_subnet_1" {
+  type = string
+}
+
+variable "public_subnet_2" {
   type = string
 }
 
