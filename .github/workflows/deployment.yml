@@ -12,7 +12,7 @@ jobs:
 
     env:
       ANSIBLE_HOST_KEY_CHECKING: "False"  # avoids SSH key prompt
-      INVENTORY_FILE: infra/inventory.ini
+      INVENTORY_FILE: inventory.ini
       PLAYBOOK_FILE: infra/ansible-playbook/deploy-war.yml
       TOMCAT_USER: ec2-user
       TOMCAT_HOST: ${{ secrets.EC2_HOST }}
@@ -156,6 +156,6 @@ jobs:
     # 6. Run Ansible Playbook to deploy WAR
     - name: Deploy WAR to Tomcat
       run: |
-        ansible-playbook -i infra/inventory.ini $PLAYBOOK_FILE \
+        ansible-playbook -i $INVENTORY_FILE $PLAYBOOK_FILE \
           --private-key=~/ubuntu-access-key.pem \
           -e "war_file=/home/runner/work/VotingApp/VotingApp/artifacts/votingapp.war"
