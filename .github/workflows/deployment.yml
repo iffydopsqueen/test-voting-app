@@ -90,17 +90,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Create Inventory from github secrets
-      run: |
-        mkdir -p infra/
-        cat > infra/inventory.ini << EOF
-        [tomcat]
-        ${{ secrets.EC2_HOST_1 }} ansible_user=ec2-user ansible_ssh_private_key_file=~/ubuntu-access-key.pem
-        ${{ secrets.EC2_HOST_2 }} ansible_user=ec2-user ansible_ssh_private_key_file=~/ubuntu-access-key.pem
-        EOF
-
-        cat infra/inventory.ini
-
     - name: Download WAR artifact 
       uses: actions/download-artifact@v4
       with:
