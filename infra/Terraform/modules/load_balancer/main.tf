@@ -65,7 +65,7 @@ resource "aws_lb_target_group" "votingApp_tg" {
   vpc_id   = var.vpc_id
 
   health_check {
-    path                = "/"
+    path                = "/votingapp"
     port = 80
     protocol            = "HTTP"
     matcher             = "200"
