@@ -9,6 +9,7 @@
     tomcat_user: tomcat
     tomcat_group: tomcat
     tomcat_home: /opt/tomcat/apache-tomcat-{{ tomcat_version }}
+    tomcat_service_env_dir: /etc/systemd/system/tomcat.service.d
 
 
   tasks:
@@ -127,6 +128,29 @@
 
           [Install]
           WantedBy=multi-user.target
+
+    - name: Ensure Tomcat service env directory exists
+      file:
+        path: "{{ tomcat_service_env_dir }}"
+        state: directory
+
+    - name: Configure app database environment for Tomcat
+      copy:
+        dest: "{{ tomcat_service_env_dir }}/env.conf"
+        content: |
+          [Service]
+          Environment=DB_HOST={{ db_host }}
+          Environment=DB_PORT={{ db_port }}
+          Environment=DB_NAME={{ db_name }}
+          Environment=DB_USERNAME={{ db_username }}
+          Environment=DB_PASSWORD={{ db_password }}
+      no_log: true
+      when:
+        - db_host is defined
+        - db_port is defined
+        - db_name is defined
+        - db_username is defined
+        - db_password is defined
 
     - name: Make Tomcat scripts executable
       file:
