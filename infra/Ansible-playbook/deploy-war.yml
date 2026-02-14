@@ -3,7 +3,7 @@
   become: yes
 
   vars:
-    tomcat_version: 10.1.52
+    tomcat_version: 9.0.89
     tomcat_install_dir: /opt/tomcat
     tomcat_webapps: /opt/tomcat/apache-tomcat-{{ tomcat_version }}/webapps
 

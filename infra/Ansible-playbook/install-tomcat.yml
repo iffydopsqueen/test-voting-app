@@ -3,7 +3,7 @@
   become: yes
 
   vars:
-    tomcat_version: 10.1.52
+    tomcat_version: 9.0.89
     tomcat_install_dir: /opt/tomcat
     java_home: /usr/lib/jvm/java-11-amazon-corretto.x86_64
     tomcat_user: tomcat
@@ -25,7 +25,7 @@
 
     - name: Download Tomcat
       get_url:
-        url: "https://dlcdn.apache.org/tomcat/tomcat-10/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
+        url: "https://dlcdn.apache.org/tomcat/tomcat-9/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
         dest: /tmp/apache-tomcat.tar.gz
 
     - name: Create Tomcat directory
@@ -94,5 +94,5 @@
     - name: start Tomcat
       systemd:
         name: tomcat
-        state: started
+        state: restarted
         enabled: yes
