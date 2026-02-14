@@ -9,7 +9,7 @@ on:
 env:
   ANSIBLE_HOST_KEY_CHECKING: "False"  # avoids SSH key prompt
   INVENTORY_FILE: inventory.ini
-  PLAYBOOK_FILE: infra/ansible-playbook/deploy-war.yml
+  PLAYBOOK_FILE: infra/Ansible-playbook/deploy-war.yml
   TOMCAT_USER: ec2-user
   TOMCAT_HOST: ${{ secrets.EC2_HOST }}
   TOMCAT_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
