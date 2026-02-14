@@ -129,6 +129,13 @@ jobs:
         echo "---"
         test -f votingapp.war && echo "✓ WAR file found at: ${GITHUB_WORKSPACE}/artifacts/votingapp.war" || echo "✗ WAR file NOT FOUND"
 
+    - name: Install Java and Tomcat (Ansible)
+      run: |
+        ansible-playbook -i $INVENTORY_FILE infra/Ansible-playbook/install-java.yml \
+          --private-key=~/ubuntu-access-key.pem
+        ansible-playbook -i $INVENTORY_FILE infra/Ansible-playbook/install-tomcat.yml \
+          --private-key=~/ubuntu-access-key.pem
+
     # 6. Run Ansible Playbook to deploy WAR
     - name: Deploy WAR to Tomcat
       run: |
