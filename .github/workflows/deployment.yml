@@ -6,34 +6,22 @@ on:
       - main   # Trigger on pushes to main branch
   workflow_dispatch: # Allows manual trigger
 
+env:
+  ANSIBLE_HOST_KEY_CHECKING: "False"  # avoids SSH key prompt
+  INVENTORY_FILE: inventory.ini
+  PLAYBOOK_FILE: infra/ansible-playbook/deploy-war.yml
+  TOMCAT_USER: ec2-user
+  TOMCAT_HOST: ${{ secrets.EC2_HOST }}
+  TOMCAT_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    env:
-      ANSIBLE_HOST_KEY_CHECKING: "False"  # avoids SSH key prompt
-      INVENTORY_FILE: inventory.ini
-      PLAYBOOK_FILE: infra/ansible-playbook/deploy-war.yml
-      TOMCAT_USER: ec2-user
-      TOMCAT_HOST: ${{ secrets.EC2_HOST }}
-      TOMCAT_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
       
-
     steps:
     # 1. Checkout repository
     - name: Checkout code
-      uses: actions/checkout@v3
-
-    
-
-    # 4. Capture Terraform outputs
-    - name: Get DB Outputs
-      run: |
-        echo "db_host=${{ secrets.DB_HOST }}" >> $GITHUB_OUTPUT
-        echo "db_port=${{ secrets.DB_PORT }}" >> $GITHUB_OUTPUT
-        echo "db_name=${{ secrets.DB_NAME }}" >> $GITHUB_OUTPUT
-        echo "db_username=${{ secrets.DB_USERNAME }}" >> $GITHUB_OUTPUT
-        echo "db_password=${{ secrets.DB_PASSWORD }}" >> $GITHUB_OUTPUT
+      uses: actions/checkout@v5
 
     # 5. Set up Java
     - name: Set up JDK 11
@@ -77,19 +65,10 @@ jobs:
   deploy: 
     runs-on: ubuntu-latest 
     needs: build 
-    env:
-      ANSIBLE_HOST_KEY_CHECKING: False
-      INVENTORY_FILE: inventory.ini
-      PLAYBOOK_FILE: infra/Ansible-playbook/deploy-war.yml
-      TOMCAT_USER: ec2-user
-      TOMCAT_HOST: ${{ secrets.EC2_HOST }}
-      TOMCAT_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-      EC2_HOST: ${{ secrets.EC2_HOST }}
-
     steps:
     # 1. Checkout repository
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
 
     - name: Download WAR artifact 
       uses: actions/download-artifact@v4
@@ -106,8 +85,6 @@ jobs:
         ls -lh || echo "✗ artifacts/ NOT FOUND"
         test -f votingapp.war && echo "✓ votingapp.war found" || echo "✗ votingapp.war NOT found"
 
-   
-
     - name: Debug - List workspace files
       run: |
         ls -la
@@ -116,8 +93,6 @@ jobs:
         echo "---"
         test -f inventory.ini && echo "inventory.ini found" || echo "inventory.ini NOT found"
         test -f infra/Ansible-playbook/deploy-war.yml && echo "deploy-war.yml found" || echo "deploy-war.yml NOT found"
-
-    
 
     # 4. Install Ansible
     - name: Install Ansible

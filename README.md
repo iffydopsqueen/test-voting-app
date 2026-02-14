@@ -71,7 +71,7 @@ private static final String PASSWORD = "your_password";
 - Deploy on Tomcat server
 - Open in browser:
 ```bash
-http://localhost:8080/VotingApp
+http://localhost:8080/votingapp/
 ```
 
 ---

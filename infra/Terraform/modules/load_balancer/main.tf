@@ -1,6 +1,6 @@
 # Create S3 bucket for load balancer access logs
 resource "aws_s3_bucket" "load_balancer_logs" {
-  bucket = "votingapp-load-balancer-logs-tf-thecloudchief"
+  bucket = "votingapp-load-balancer-logs-tf-1234567"
 }
 
 resource "aws_s3_bucket_policy" "allow_elb_logging" {
@@ -60,13 +60,13 @@ resource "aws_lb" "votingApp_lb" {
 # If ec2 isnt listening on 443, health check will fail
 resource "aws_lb_target_group" "votingApp_tg" {
   name     = "votingApp-tg"
-  port     = 80
+  port     = 8080
   protocol = "HTTP"
   vpc_id   = var.vpc_id
 
   health_check {
-    path                = "/votingapp"
-    port = 80
+    path                = "/votingapp/"
+    port                = 8080
     protocol            = "HTTP"
     matcher             = "200"
     interval            = 30
