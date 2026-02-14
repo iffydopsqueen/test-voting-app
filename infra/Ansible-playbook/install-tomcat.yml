@@ -29,20 +29,27 @@
         url: "https://dlcdn.apache.org/tomcat/tomcat-9/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
         dest: /tmp/apache-tomcat.tar.gz
 
-    - name: Create Tomcat directory
+    - name: Create Tomcat base directory
       file:
         path: "{{ tomcat_install_dir }}"
+        state: directory
+
+    - name: Create Tomcat home directory
+      file:
+        path: "{{ tomcat_home }}"
         state: directory
 
     - name: Extract Tomcat
       unarchive:
         src: /tmp/apache-tomcat.tar.gz
-        dest: "{{ tomcat_install_dir }}"
+        dest: "{{ tomcat_home }}"
         remote_src: yes
+        extra_opts:
+          - --strip-components=1
     
     - name: Set ownership
       file:
-        path: "{{ tomcat_install_dir }}"
+        path: "{{ tomcat_home }}"
         owner: "{{ tomcat_user }}"
         group: "{{ tomcat_group }}"
         recurse: yes
@@ -95,7 +102,7 @@
           Environment=JAVA_HOME={{ java_home }}
           Environment=CATALINA_HOME={{ tomcat_home }}
           Environment=CATALINA_BASE={{ tomcat_home }}
-          Environment=CATALINA_PID={{ tomcat_install_dir }}/temp/tomcat.pid
+          Environment=CATALINA_PID={{ tomcat_home }}/temp/tomcat.pid
 
           ExecStart={{ tomcat_home }}/bin/catalina.sh run
           ExecStop={{ tomcat_home }}/bin/catalina.sh stop
