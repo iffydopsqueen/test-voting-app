@@ -5,7 +5,8 @@
   vars:
     tomcat_version: 9.0.115
     tomcat_install_dir: /opt/tomcat
-    tomcat_webapps: /opt/tomcat/apache-tomcat-{{ tomcat_version }}/webapps
+    tomcat_home: /opt/tomcat/apache-tomcat-{{ tomcat_version }}
+    tomcat_webapps: "{{ tomcat_home }}/webapps"
 
   tasks:
     - name: Copy WAR file to Tomcat webapps

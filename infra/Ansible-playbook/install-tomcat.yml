@@ -8,6 +8,7 @@
     java_home: /usr/lib/jvm/java-11-amazon-corretto.x86_64
     tomcat_user: tomcat
     tomcat_group: tomcat
+    tomcat_home: /opt/tomcat/apache-tomcat-{{ tomcat_version }}
 
 
   tasks:
@@ -46,9 +47,36 @@
         group: "{{ tomcat_group }}"
         recurse: yes
 
+    - name: Verify Tomcat home exists
+      stat:
+        path: "{{ tomcat_home }}/bin/catalina.sh"
+      register: tomcat_home_stat
+
+    - name: Fail if Tomcat did not extract correctly
+      fail:
+        msg: "Tomcat home not found at {{ tomcat_home }}. Extraction failed."
+      when: not tomcat_home_stat.stat.exists
+
+    - name: Check tomcat-users.xml
+      stat:
+        path: "{{ tomcat_home }}/conf/tomcat-users.xml"
+      register: tomcat_users_stat
+
+    - name: Create tomcat-users.xml if missing
+      copy:
+        dest: "{{ tomcat_home }}/conf/tomcat-users.xml"
+        content: |
+          <?xml version='1.0' encoding='utf-8'?>
+          <tomcat-users>
+          </tomcat-users>
+        owner: "{{ tomcat_user }}"
+        group: "{{ tomcat_group }}"
+        mode: '0644'
+      when: not tomcat_users_stat.stat.exists
+
     - name: Add Tomcat user for deployments
       lineinfile:
-        path: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/conf/tomcat-users.xml"
+        path: "{{ tomcat_home }}/conf/tomcat-users.xml"
         line: '<user username="deploy" password="deploypass" roles="manager-gui,manager-script"/>'
         insertafter: "<tomcat-users>"
         state: present
@@ -65,12 +93,12 @@
           Type=simple
 
           Environment=JAVA_HOME={{ java_home }}
-          Environment=CATALINA_HOME={{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}
-          Environment=CATALINA_BASE={{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}
+          Environment=CATALINA_HOME={{ tomcat_home }}
+          Environment=CATALINA_BASE={{ tomcat_home }}
           Environment=CATALINA_PID={{ tomcat_install_dir }}/temp/tomcat.pid
 
-          ExecStart={{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/bin/catalina.sh run
-          ExecStop={{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/bin/catalina.sh stop
+          ExecStart={{ tomcat_home }}/bin/catalina.sh run
+          ExecStop={{ tomcat_home }}/bin/catalina.sh stop
           User={{ tomcat_user }}
           Group={{ tomcat_group }}
           UMask=0007
@@ -82,7 +110,7 @@
 
     - name: Make Tomcat scripts executable
       file:
-        path: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/bin"
+        path: "{{ tomcat_home }}/bin"
         mode: '0755'
         recurse: yes
 
