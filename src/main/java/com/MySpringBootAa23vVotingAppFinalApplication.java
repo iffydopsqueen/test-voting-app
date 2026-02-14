@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 import com.model.Candidate;
 import com.model.User;
@@ -11,7 +13,12 @@ import com.repository.CandidateRepository;
 import com.repository.UserRepository;
 
 @SpringBootApplication
-public class MySpringBootAa23vVotingAppFinalApplication implements CommandLineRunner{
+public class MySpringBootAa23vVotingAppFinalApplication extends SpringBootServletInitializer implements CommandLineRunner{
+
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+		return builder.sources(MySpringBootAa23vVotingAppFinalApplication.class);
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(MySpringBootAa23vVotingAppFinalApplication.class, args);
