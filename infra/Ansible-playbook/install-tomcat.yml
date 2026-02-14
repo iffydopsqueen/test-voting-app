@@ -3,7 +3,7 @@
   become: yes
 
   vars:
-    tomcat_version: 9.0.89
+    tomcat_version: 9.0.115
     tomcat_install_dir: /opt/tomcat
     java_home: /usr/lib/jvm/java-11-amazon-corretto.x86_64
     tomcat_user: tomcat
